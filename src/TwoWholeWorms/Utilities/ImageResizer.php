@@ -139,7 +139,7 @@ class ImageResizer
         if (!is_integer($height) || 1 > $height) {
             throw new ImageResizerInvalidValueException('Invalid height `' . print_r($height, true) . '` passed; must be an integer > 0');
         }
-        $this->config['width'] = $width;
+        $this->config['height'] = $height;
 
         return $this;
     }
@@ -157,11 +157,9 @@ class ImageResizer
             }
             $overrides['width'] = $widthOrOverrides;
             $overrides['height'] = $height;
+        } elseif ($widthOrOverrides) {
+            throw new ImageResizerInvalidArgumentException('Usage ->resize(), ->resize(width, height), ->resize([overrides]), ->resize(width, height, [overrides])');
         }
-
-        // Calculate the aspect ratios of the source image and the target dimensions
-        $sourceImageAspectRatio = $this->sourceImageInfo[0] / $this->sourceImageInfo[1];
-        $destImageAspectRatio = $this->width / $this->height;
 
         $config = array_merge($this->config, $overrides);
         if ($widthOrOverrides && !is_integer($widthOrOverrides)) {
@@ -170,6 +168,10 @@ class ImageResizer
         if ($height && !is_integer($height)) {
             $config['height'] = $height;
         }
+
+        // Calculate the aspect ratios of the source image and the target dimensions
+        $sourceImageAspectRatio = $this->sourceImageInfo[0] / $this->sourceImageInfo[1];
+        $destImageAspectRatio = $config['width'] / $config['height'];
 
         $sourceX = 0;
         $sourceY = 0;
@@ -240,7 +242,8 @@ class ImageResizer
             $this->resize($overrides);
         }
 
-        switch ($this->format) {
+        $config = array_merge($this->config, $overrides);
+        switch ($config['format']) {
             case IMAGETYPE_PNG:
                 imagepng($this->destImage, $saveToLocation);
                 break;
