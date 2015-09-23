@@ -208,9 +208,17 @@ class ImageResizer
                 if ($sourceImageAspectRatio > $destImageAspectRatio) {
                     $destHeight = $config['height'];
                     $destWidth = (int)($destHeight * $sourceImageAspectRatio);
+                    if ($destWidth > $config['width']) {
+                        $destWidth = $config['width'];
+                        $destHeight = (int)($destWidth / $sourceImageAspectRatio);
+                    }
                 } else {
                     $destWidth = $config['width'];
                     $destHeight = (int)($destWidth / $sourceImageAspectRatio);
+                    if ($destHeight > $config['height']) {
+                        $destHeight = $config['height'];
+                        $destWidth = (int)($destHeight * $sourceImageAspectRatio);
+                    }
                 }
                 break;
 
