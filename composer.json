@@ -1,0 +1,29 @@
+{
+    "name": "twowholeworms/image-resizer",
+    "description": "An image-resizing librarylet",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "vinari",
+        "image",
+        "gd",
+        "resizer"
+    ],
+    "homepage": "https://github.com/TwoWholeWorms/image-resizer",
+    "authors": [
+        {
+            "name": "Benjamin Nolan",
+            "email": "benjamin.nolan@vinari.co.uk",
+            "homepage": "https://ben.mu/"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-gd": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "TwoWholeWorms": "src/"
+        }
+    }
+}
