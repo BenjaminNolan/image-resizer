@@ -64,33 +64,33 @@ class ImageResizer
         }
 
         // Tells Dropbox to just feed us the file rather than its gallery page
-		if (preg_match('#^https?://(www.)?dropbox.com/.*\?dl=0#', $fileOrUri)) {
-			$fileOrUri = preg_replace('#\?dl=0#', '?dl=1', $fileOrUri);
-		}
+        if (preg_match('#^https?://(www.)?dropbox.com/.*\?dl=0#', $fileOrUri)) {
+            $fileOrUri = preg_replace('#\?dl=0#', '?dl=1', $fileOrUri);
+        }
 
-		$this->sourceImageInfo = getimagesize($fileOrUri);
-		if (!$this->sourceImageInfo) {
-			throw new ImageResizerInvalidValueException('Unable to get image info for `' . print_r($fileOrUri, true) . '`');
-		} elseif (!in_array($this->sourceImageInfo[2], [IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF])) {
-			throw new ImageResizerInvalidValueException('Unknown image type `' . $this->sourceImageInfo[2] . '` provided. (Perhaps it\'s new and needs adding to the library?)');
-		} else {
-			switch ($this->sourceImageInfo[2]) {
-				case IMAGETYPE_GIF:
-					$this->sourceImage = imagecreatefromgif($fileOrUri);
-					break;
+        $this->sourceImageInfo = getimagesize($fileOrUri);
+        if (!$this->sourceImageInfo) {
+            throw new ImageResizerInvalidValueException('Unable to get image info for `' . print_r($fileOrUri, true) . '`');
+        } elseif (!in_array($this->sourceImageInfo[2], [IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF])) {
+            throw new ImageResizerInvalidValueException('Unknown image type `' . $this->sourceImageInfo[2] . '` provided. (Perhaps it\'s new and needs adding to the library?)');
+        } else {
+            switch ($this->sourceImageInfo[2]) {
+                case IMAGETYPE_GIF:
+                    $this->sourceImage = imagecreatefromgif($fileOrUri);
+                    break;
 
-				case IMAGETYPE_JPEG:
-					$this->sourceImage = imagecreatefromjpeg($fileOrUri);
-					break;
+                case IMAGETYPE_JPEG:
+                    $this->sourceImage = imagecreatefromjpeg($fileOrUri);
+                    break;
 
-				case IMAGETYPE_PNG:
-					$this->sourceImage = imagecreatefrompng($fileOrUri);
-					break;
+                case IMAGETYPE_PNG:
+                    $this->sourceImage = imagecreatefrompng($fileOrUri);
+                    break;
 
                 default:
                     throw new ImageResizerRuntimeException('Unknown image type `' . print_r($this->sourceImageInfo[2], true) . '`.');
                     break;
-			}
+            }
         }
 
         return $this->sourceImage;
@@ -185,16 +185,18 @@ class ImageResizer
 
         switch ($config['mode']) {
             case self::MODE_COVER:
+                // Set the destination width and height
+                $destHeight = $config['height'];
+                $destWidth = $config['width'];
+
                 /*
                  * If the source image's aspect ratio is higher than the destination dimensions (ie, it's wider), calculate
                  * the new width from the destination height and then crop the image to the destination dimensions.
                  */
                 if ($sourceImageAspectRatio > $destImageAspectRatio) {
-                    $destHeight = $config['height'];
-                    $sourceX = (int)((($destHeight * $sourceImageAspectRatio) - $config['width']) / 2);
+                    $sourceX = (int)((($destHeight * $sourceImageAspectRatio) - $destWidth) / 2);
                 } else {
-                    $destWidth = $config['width'];
-                    $sourceY = (int)((($destWidth / $sourceImageAspectRatio) - $config['height']) / 2);
+                    $sourceY = (int)((($destWidth / $sourceImageAspectRatio) - $destHeight) / 2);
                 }
                 break;
 
@@ -224,14 +226,14 @@ class ImageResizer
         }
 
         $this->destImage = imagecreatetruecolor($destWidth, $destHeight);
-		imagecopyresampled(
-			$this->destImage,
-			$this->sourceImage,
-			$destX, $destY,
-			$sourceX, $sourceY,
-			$destWidth, $destHeight,
-			$sourceWidth, $sourceHeight
-		);
+        imagecopyresampled(
+            $this->destImage,
+            $this->sourceImage,
+            $destX, $destY,
+            $sourceX, $sourceY,
+            $destWidth, $destHeight,
+            $sourceWidth, $sourceHeight
+        );
 
         return $this->destImage;
     }
